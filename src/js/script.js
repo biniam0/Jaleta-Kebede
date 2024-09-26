@@ -65,3 +65,81 @@ let myDate = document.querySelector("#datee");
 
 const yes = new Date().getFullYear();
 myDate.innerHTML = yes;
+
+
+// About Contact form
+const form = document.getElementById("contact-form");
+const fullName = document.getElementById("name");
+const email = document.getElementById("email");
+const phone = document.getElementById("phone");
+const subject = document.getElementById("subject");
+const mess = document.getElementById("message");
+
+form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    checkInputs();
+
+    if (!fullName.classList.contains("error") && !email.classList.contains("error") &&
+        !phone.classList.contains("error") && !subject.classList.contains("error") &&
+        !mess.classList.contains("error")) {
+        sendEmail();
+        form.reset();
+    }
+});
+
+function checkInputs() {
+    const items = document.querySelectorAll(".item");
+
+    items.forEach((item, index) => {
+        item.addEventListener("keyup", () => {
+            if (item.value.trim() === "") {
+                item.classList.add("error");
+                item.parentElement.classList.add("error");
+            } else {
+                item.classList.remove("error");
+                item.parentElement.classList.remove("error");
+            }
+        });
+
+        if (index === 1) { // Email field
+            item.addEventListener("keyup", checkEmail);
+        }
+    });
+}
+
+function checkEmail() {
+    const emailRegex = /^[a-z\d._%+-]+@[a-z\d.-]+\.[a-z]{2,}$/i;
+    const errorTxtEmail = document.querySelector(".error-txt.email");
+
+    if (!email.value.match(emailRegex)) {
+        email.classList.add("error");
+        email.parentElement.classList.add("error");
+        errorTxtEmail.innerText = email.value !== "" ? "Enter a valid email address" : "Email Address cannot be empty";
+    } else {
+        email.classList.remove("error");
+        email.parentElement.classList.remove("error");
+        errorTxtEmail.innerText = "";
+    }
+}
+
+// Send Email (using EmailJS for security)
+function sendEmail() {
+    emailjs.send("service_id", "template_id", {
+        from_name: fullName.value,
+        to_name: "jaletakebede@gmail.com",
+        message: mess.value,
+        reply_to: email.value,
+    }).then(function (response) {
+        Swal.fire({
+            title: "Success!",
+            text: "Message sent successfully!",
+            icon: "success"
+        });
+    }, function (error) {
+        Swal.fire({
+            title: "Error!",
+            text: "Message failed to send!",
+            icon: "error"
+        });
+    });
+}
